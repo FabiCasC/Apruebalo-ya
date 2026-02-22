@@ -1,163 +1,271 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import Image from 'next/image';
-import { Search, Filter, X, Star, Users } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Card } from '@/components/ui/card';
+import { Search, Filter, BookOpen, X } from 'lucide-react';
+import Link from 'next/link';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+
+// Estructura: Psicología y Medicina en pestañas separadas
+const MENU_CURSOS = [
+  { titulo: 'Biología', submenus: ['Biología Celular', 'Botánica', 'Ecología', 'Genética', 'Inmunología', 'Geología'] },
+  { titulo: 'Biotecnología', submenus: null },
+  { titulo: 'Ciencias de Materiales', submenus: null },
+  { titulo: 'Computación', submenus: ['Desarrollo de Videojuegos', 'El ABC de la PC', 'Lenguaje de Programación', 'MATLAB', 'Ofimática', 'Robótica'] },
+  { titulo: 'Economía y Finanzas', submenus: null },
+  { titulo: 'Electrónica', submenus: ['Análisis y Diseño de Circuitos', 'Comunicaciones', 'Dispositivos'] },
+  { titulo: 'Estadística', submenus: ['Estadística Descriptiva', 'Estadística Inferencial'] },
+  { titulo: 'Física', submenus: ['Astronomía', 'Electricidad y Electromagnetismo', 'Física Aplicada', 'Física General', 'Física Matemática', 'Mecánica Cuántica', 'Óptica', 'Termodinámica', 'Transferencia de Calor', 'Vibraciones y Ondas'] },
+  { titulo: 'Idiomas', submenus: ['Inglés', 'Alemán', 'Chino', 'Francés', 'Italiano', 'Portugués', 'Ruso', 'Árabe', 'Japonés'] },
+  { titulo: 'Matemáticas', submenus: ['Aritmética', 'Trigonometría', 'Análisis Matemático de Espinoza', 'Análisis Numérico', 'Cálculo', 'Matemática Administrativa', 'Matemática Económica', 'Matemática Avanzada', 'Matemática Básica', 'Matemática Discreta'] },
+  { titulo: 'Mecánica', submenus: ['Biomecánica', 'Dinámica Vectorial', 'Diseño de Máquinas', 'Estática', 'Instrumentación Industrial', 'Máquinas Térmicas', 'Mecánica de Fluidos', 'Mecánica de Sólidos', 'Vibraciones Mecánicas'] },
+  { titulo: 'Psicología', submenus: null },
+  { titulo: 'Medicina', submenus: null },
+  { titulo: 'Química', submenus: ['Bioquímica', 'Electroquímica', 'Fitoquímica', 'Ingeniería de las Reacciones Químicas', 'Química Ambiental', 'Química Analítica', 'Química Cuántica', 'Química General', 'Química Inorgánica', 'Química Orgánica'] },
+];
+
+// Aplanar a lista de cursos
+const CURSOS_PLANOS = MENU_CURSOS.flatMap((item) =>
+  item.submenus
+    ? item.submenus.map((sub) => ({ nombre: sub, categoria: item.titulo }))
+    : [{ nombre: item.titulo, categoria: item.titulo }]
+);
+
+const CATEGORIAS = MENU_CURSOS.map((c) => c.titulo);
+
+// Imagen de libro por curso. Añade rutas reales aquí (ej: 'Biología-Biología Celular': '/img/libros/...')
+const IMAGENES_LIBROS: Record<string, string[]> = {
+  // Ejemplo: 'Biología-Biología Celular': ['/img/libros/biologia/portada.jpg'],
+};
+
+const COLORES_CATEGORIA: Record<string, string> = {
+  Biología: 'from-emerald-500/20 to-teal-500/10 border-emerald-500/30',
+  Biotecnología: 'from-violet-500/20 to-purple-500/10 border-violet-500/30',
+  'Ciencias de Materiales': 'from-slate-500/20 to-zinc-500/10 border-slate-500/30',
+  Computación: 'from-blue-500/20 to-cyan-500/10 border-blue-500/30',
+  'Economía y Finanzas': 'from-amber-500/20 to-yellow-500/10 border-amber-500/30',
+  Electrónica: 'from-indigo-500/20 to-blue-500/10 border-indigo-500/30',
+  Estadística: 'from-rose-500/20 to-pink-500/10 border-rose-500/30',
+  Física: 'from-orange-500/20 to-amber-500/10 border-orange-500/30',
+  Idiomas: 'from-cyan-500/20 to-teal-500/10 border-cyan-500/30',
+  Matemáticas: 'from-primary/20 to-primary/5 border-primary/30',
+  Mecánica: 'from-stone-500/20 to-neutral-500/10 border-stone-500/30',
+  Psicología: 'from-fuchsia-500/20 to-pink-500/10 border-fuchsia-500/30',
+  Medicina: 'from-red-500/20 to-rose-500/10 border-red-500/30',
+  Química: 'from-lime-500/20 to-green-500/10 border-lime-500/30',
+};
+
+// Placeholder para libros. Añade imágenes reales en IMAGENES_LIBROS o en public/img/libros/
+const PLACEHOLDER_LIBRO = '/img/asesoria%20de%20%20tesis.jpg';
+
+function getImagenCurso(cursoKey: string): string {
+  const custom = IMAGENES_LIBROS[cursoKey];
+  if (custom && custom.length > 0) return custom[0];
+  return PLACEHOLDER_LIBRO;
+}
+
+type CursoSeleccionado = { nombre: string; categoria: string } | null;
 
 export default function CursosPage() {
-  const [searchQuery, setSearchQuery] = useState('');
-  const [selectedFilters, setSelectedFilters] = useState<string[]>([]);
+  const [filtroCategoria, setFiltroCategoria] = useState<string | null>(null);
+  const [busqueda, setBusqueda] = useState('');
+  const [cursoSeleccionado, setCursoSeleccionado] = useState<CursoSeleccionado>(null);
 
-  const subjects = [
-    { id: 'mathematics', label: 'Matemáticas' },
-    { id: 'physics', label: 'Física' },
-    { id: 'chemistry', label: 'Química' },
-    { id: 'biology', label: 'Biología' },
-    { id: 'engineering', label: 'Ingeniería' },
-    { id: 'economics', label: 'Economía' },
-    { id: 'history', label: 'Historia' },
-    { id: 'literature', label: 'Literatura' },
-    { id: 'programming', label: 'Programación' },
-  ];
+  const cursosFiltrados = useMemo(() => {
+    return CURSOS_PLANOS.filter((curso) => {
+      const matchCategoria = !filtroCategoria || curso.categoria === filtroCategoria;
+      const matchBusqueda =
+        !busqueda.trim() ||
+        curso.nombre.toLowerCase().includes(busqueda.toLowerCase()) ||
+        curso.categoria.toLowerCase().includes(busqueda.toLowerCase());
+      return matchCategoria && matchBusqueda;
+    });
+  }, [filtroCategoria, busqueda]);
 
-  const courses = [
-    { id: 1, title: 'Cálculo Integral Avanzado', subject: 'mathematics', rating: 4.9, students: 2340, image: '/resource-1.jpg', description: 'Domina el cálculo integral con ejemplos y simuladores' },
-    { id: 2, title: 'Química Orgánica Paso a Paso', subject: 'chemistry', rating: 4.8, students: 1890, image: '/resource-2.jpg', description: 'Comprende las estructuras y reacciones orgánicas' },
-    { id: 3, title: 'Termodinámica Explicada', subject: 'physics', rating: 4.9, students: 3120, image: '/resource-3.jpg', description: 'Leyes de la termodinámica con ejercicios interactivos' },
-    { id: 4, title: 'Biología Molecular Interactiva', subject: 'biology', rating: 4.7, students: 2010, image: '/resource-1.jpg', description: 'Estructura del ADN y procesos celulares' },
-    { id: 5, title: 'Economía Microeconómica', subject: 'economics', rating: 4.8, students: 1650, image: '/resource-2.jpg', description: 'Teoría económica y modelos de mercado' },
-    { id: 6, title: 'Ingeniería Civil Básica', subject: 'engineering', rating: 4.6, students: 980, image: '/resource-3.jpg', description: 'Fundamentos de estructuras y proyecto' },
-    { id: 7, title: 'Historia Universal Contemporánea', subject: 'history', rating: 4.5, students: 1200, image: '/resource-1.jpg', description: 'Eventos históricos del siglo XX y XXI' },
-    { id: 8, title: 'Literatura Clásica y Moderna', subject: 'literature', rating: 4.7, students: 890, image: '/resource-2.jpg', description: 'Análisis de obras literarias destacadas' },
-    { id: 9, title: 'Python para Científicos', subject: 'programming', rating: 4.9, students: 4500, image: '/resource-3.jpg', description: 'Programación aplicada a la ciencia e ingeniería' },
-    { id: 10, title: 'Álgebra Lineal Completa', subject: 'mathematics', rating: 4.8, students: 3200, image: '/resource-1.jpg', description: 'Matrices, vectores y transformaciones lineales' },
-    { id: 11, title: 'Física Cuántica Introducción', subject: 'physics', rating: 4.7, students: 1560, image: '/resource-2.jpg', description: 'Conceptos fundamentales de mecánica cuántica' },
-    { id: 12, title: 'JavaScript Avanzado', subject: 'programming', rating: 4.8, students: 5000, image: '/resource-3.jpg', description: 'Desarrollo web moderno con JavaScript' },
-  ];
-
-  const filteredCourses = courses.filter(course => {
-    const matchesSearch = course.title.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesFilter = selectedFilters.length === 0 || selectedFilters.includes(course.subject);
-    return matchesSearch && matchesFilter;
-  });
-
-  const toggleFilter = (id: string) => {
-    setSelectedFilters(prev =>
-      prev.includes(id) ? prev.filter(f => f !== id) : [...prev, id]
-    );
+  const toggleCategoria = (cat: string) => {
+    setFiltroCategoria((prev) => (prev === cat ? null : cat));
   };
 
-  return (
-    <div className="min-h-screen bg-white">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        {/* Header */}
-        <div className="mb-16">
-          <h1 className="text-6xl font-bold text-foreground mb-4 leading-tight">Cursos Universitarios</h1>
-          <p className="text-xl text-muted-foreground max-w-2xl">
-            Accede a miles de cursos especializados de todas las áreas de estudio con recursos interactivos
-          </p>
-        </div>
+  const imagenModal = cursoSeleccionado
+    ? getImagenCurso(`${cursoSeleccionado.categoria}-${cursoSeleccionado.nombre}`)
+    : null;
 
-        {/* Search Bar */}
-        <div className="bg-white rounded-2xl border border-border p-8 mb-12">
+  return (
+    <div className="min-h-screen bg-background">
+      {/* Banner */}
+      <section className="relative h-44 sm:h-52 lg:h-72 overflow-hidden">
+        <Image
+          src="/img/banner.jpg"
+          alt="Cursos"
+          fill
+          className="object-cover"
+          priority
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/40 to-transparent flex items-end">
+          <div className="w-full pb-6 sm:pb-8 pt-16 sm:pt-20 px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto">
+            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-white drop-shadow-lg">
+              Cursos
+            </h1>
+            <p className="mt-2 text-white/95 text-lg max-w-2xl">
+              Explora nuestro catálogo y filtra por área de estudio
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section className="py-12 lg:py-16 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-6xl mx-auto">
+          {/* Barra de búsqueda */}
           <div className="relative mb-8">
-            <Search className="absolute left-4 top-4 text-muted-foreground w-5 h-5" />
-            <Input
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+            <input
               type="text"
-              placeholder="Busca cursos por nombre, tema o palabra clave..."
-              className="w-full pl-12 pr-4 py-3 border border-border rounded-lg focus:ring-2 focus:ring-primary text-base"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Buscar por nombre de curso o categoría..."
+              value={busqueda}
+              onChange={(e) => setBusqueda(e.target.value)}
+              className="w-full pl-12 pr-4 py-3.5 rounded-xl border border-border bg-white shadow-sm focus:ring-2 focus:ring-primary focus:border-primary transition-all text-foreground placeholder:text-muted-foreground"
             />
           </div>
 
-          {/* Filters */}
-          <div className="space-y-4">
+          {/* Filtros por categoría */}
+          <div className="mb-10">
             <div className="flex items-center gap-2 mb-4">
               <Filter className="w-5 h-5 text-primary" />
-              <h3 className="font-semibold text-foreground">Filtrar por Asignatura</h3>
+              <h3 className="font-bold text-foreground">Filtrar por área</h3>
             </div>
-            <div className="flex flex-wrap gap-3">
-              {subjects.map(subject => (
+            <div className="flex flex-wrap gap-2">
+              {CATEGORIAS.map((cat) => (
                 <button
-                  key={subject.id}
-                  onClick={() => toggleFilter(subject.id)}
-                  className={`px-4 py-2 rounded-lg transition-all font-medium text-sm ${
-                    selectedFilters.includes(subject.id)
+                  key={cat}
+                  onClick={() => toggleCategoria(cat)}
+                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                    filtroCategoria === cat
                       ? 'bg-primary text-white shadow-md'
-                      : 'bg-muted text-foreground hover:bg-border'
+                      : 'bg-white border border-border text-muted-foreground hover:border-primary/50 hover:text-foreground'
                   }`}
                 >
-                  {subject.label}
+                  {cat}
+                </button>
+              ))}
+              {filtroCategoria && (
+                <button
+                  onClick={() => setFiltroCategoria(null)}
+                  className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium bg-muted text-muted-foreground hover:bg-border transition-colors"
+                >
+                  <X className="w-4 h-4" />
+                  Limpiar filtro
+                </button>
+              )}
+            </div>
+          </div>
+
+          {/* Resultados */}
+          <div className="flex items-center justify-between mb-6">
+            <p className="text-muted-foreground">
+              <span className="font-bold text-foreground">{cursosFiltrados.length}</span> curso{cursosFiltrados.length !== 1 ? 's' : ''} encontrado{cursosFiltrados.length !== 1 ? 's' : ''}
+            </p>
+          </div>
+
+          {/* Grid de cards */}
+          {cursosFiltrados.length > 0 ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+              {cursosFiltrados.map((curso, i) => (
+                <button
+                  key={`${curso.categoria}-${curso.nombre}-${i}`}
+                  type="button"
+                  onClick={() => setCursoSeleccionado(curso)}
+                  className={`group rounded-2xl border-2 bg-gradient-to-br overflow-hidden transition-all duration-300 hover:shadow-xl hover:scale-[1.02] text-left ${
+                    COLORES_CATEGORIA[curso.categoria] || 'from-muted to-muted/50 border-border'
+                  }`}
+                >
+                  <div className="p-5 h-full flex flex-col">
+                    <div className="mb-3">
+                      <span className="inline-block px-2.5 py-1 rounded-md bg-white/80 text-xs font-semibold text-foreground/80">
+                        {curso.categoria}
+                      </span>
+                    </div>
+                    <h3 className="font-bold text-foreground text-lg leading-tight flex-1">
+                      {curso.nombre}
+                    </h3>
+                    <span className="mt-4 inline-flex items-center gap-2 text-sm font-bold text-primary group-hover:underline">
+                      <BookOpen className="w-4 h-4" />
+                      Ver libros
+                    </span>
+                  </div>
                 </button>
               ))}
             </div>
-            {selectedFilters.length > 0 && (
+          ) : (
+            <div className="text-center py-20 bg-white rounded-2xl border border-border">
+              <Search className="w-16 h-16 mx-auto text-muted-foreground/30 mb-4" />
+              <p className="text-lg font-medium text-foreground mb-1">No se encontraron cursos</p>
+              <p className="text-muted-foreground text-sm">
+                Prueba con otro filtro o término de búsqueda
+              </p>
               <button
-                onClick={() => setSelectedFilters([])}
-                className="text-sm text-primary hover:text-secondary font-medium mt-4"
+                onClick={() => {
+                  setFiltroCategoria(null);
+                  setBusqueda('');
+                }}
+                className="mt-4 px-6 py-2 rounded-lg bg-primary text-white font-bold hover:bg-primary/90 transition-colors"
               >
-                Limpiar todos los filtros
+                Limpiar filtros
               </button>
-            )}
+            </div>
+          )}
+
+          <div className="mt-14 text-center">
+            <Link
+              href="/contacto"
+              className="inline-flex items-center gap-2 px-8 py-4 bg-primary text-white font-bold rounded-xl hover:bg-primary/90 shadow-lg hover:shadow-xl transition-all"
+            >
+              Contáctanos para más información
+            </Link>
           </div>
         </div>
+      </section>
 
-        {/* Results Count */}
-        <div className="mb-8 flex items-center justify-between">
-          <p className="text-muted-foreground">
-            Mostrando <span className="font-semibold text-foreground">{filteredCourses.length}</span> curso(s)
-          </p>
-        </div>
-
-        {/* Courses Grid */}
-        {filteredCourses.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {filteredCourses.map(course => (
-              <div key={course.id} className="group overflow-hidden rounded-xl border border-border hover:border-primary hover:shadow-xl transition-all duration-300 h-full flex flex-col cursor-pointer">
-                <div className="relative h-56 bg-muted overflow-hidden">
-                  <Image
-                    src={course.image || "/placeholder.svg"}
-                    alt={course.title}
-                    fill
-                    className="object-cover group-hover:scale-105 transition-transform duration-300"
-                  />
-                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors" />
-                </div>
-                <div className="p-6 flex-1 flex flex-col">
-                  <h3 className="text-lg font-bold text-foreground mb-2 group-hover:text-primary transition-colors line-clamp-2">
-                    {course.title}
-                  </h3>
-                  <p className="text-muted-foreground text-sm mb-4 line-clamp-2 flex-1">{course.description}</p>
-                  
-                  <div className="flex items-center justify-between pt-4 border-t border-border mb-6 text-sm">
-                    <div className="flex items-center gap-1 text-amber-500">
-                      <Star className="w-4 h-4 fill-current" />
-                      <span className="font-semibold">{course.rating}</span>
-                    </div>
-                    <div className="flex items-center gap-1 text-muted-foreground">
-                      <Users className="w-4 h-4" />
-                      <span>{course.students.toLocaleString()}</span>
-                    </div>
-                  </div>
-
-                  <Button className="w-full group-hover:shadow-lg transition-shadow">
-                    Acceder al Curso
-                  </Button>
-                </div>
+      {/* Modal con imágenes de libros */}
+      <Dialog open={!!cursoSeleccionado} onOpenChange={(open) => !open && setCursoSeleccionado(null)}>
+        <DialogContent className="w-[95vw] sm:w-full max-w-4xl max-h-[90vh] overflow-y-auto p-4 sm:p-6">
+          {cursoSeleccionado && (
+            <>
+              <DialogHeader>
+                <DialogTitle className="text-xl font-black text-foreground pr-8">
+                  {cursoSeleccionado.nombre}
+                  <span className="block text-sm font-normal text-muted-foreground mt-1">
+                    {cursoSeleccionado.categoria}
+                  </span>
+                </DialogTitle>
+              </DialogHeader>
+              <p className="text-muted-foreground text-sm mb-6">
+                Libros que podrás encontrar en este curso:
+              </p>
+              <div className="relative aspect-[3/4] w-full max-w-xs sm:max-w-sm mx-auto rounded-lg overflow-hidden border border-border bg-muted mb-6 sm:mb-8">
+                <Image
+                  src={imagenModal!}
+                  alt={`Libros - ${cursoSeleccionado.nombre}`}
+                  fill
+                  className="object-cover"
+                  sizes="(max-width: 640px) 100vw, 384px"
+                />
               </div>
-            ))}
-          </div>
-        ) : (
-          <div className="text-center py-20">
-            <Search className="w-16 h-16 mx-auto text-muted opacity-20 mb-4" />
-            <p className="text-xl text-muted-foreground">No encontramos cursos que coincidan con tu búsqueda</p>
-          </div>
-        )}
-      </div>
+              <Link
+                href="/contacto"
+                className="flex items-center justify-center gap-2 w-full py-4 bg-primary text-white font-bold rounded-xl hover:bg-primary/90 shadow-md hover:shadow-lg transition-all"
+              >
+                <BookOpen className="w-5 h-5" />
+                Solicita acceso
+              </Link>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

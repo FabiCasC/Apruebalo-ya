@@ -1,197 +1,111 @@
-import { Mail, Phone, MapPin, Clock, Send } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+'use client';
 
+import Image from 'next/image';
+import { Phone, Mail, MapPin } from 'lucide-react';
 export default function ContactoPage() {
-  const contactMethods = [
-    {
-      icon: Mail,
-      title: 'Correo Electrónico',
-      value: 'contacto@apruebaloya.com',
-      description: 'Respuesta en 24 horas',
-    },
-    {
-      icon: Phone,
-      title: 'Teléfono',
-      value: '+34 123 456 789',
-      description: 'Lunes a Viernes, 9:00 - 18:00',
-    },
-    {
-      icon: MapPin,
-      title: 'Ubicación',
-      value: 'Madrid, España',
-      description: 'Oficina de atención al cliente',
-    },
-    {
-      icon: Clock,
-      title: 'Horario de Atención',
-      value: 'Lun - Vie: 9:00 - 18:00',
-      description: 'Sáb - Dom: Cerrado',
-    },
-  ];
-
-  const faqs = [
-    {
-      question: '¿Cuál es el costo de la suscripción?',
-      answer: 'Ofrecemos planes flexibles con acceso a todos los recursos. Contáctanos para conocer los precios especiales para estudiantes y grupos.',
-    },
-    {
-      question: '¿Puedo cancelar mi suscripción en cualquier momento?',
-      answer: 'Sí, puedes cancelar tu suscripción sin penalización en cualquier momento desde tu panel de control.',
-    },
-    {
-      question: '¿Ofrecen soporte personalizado?',
-      answer: 'Sí, nuestro equipo ofrece soporte 24/7 por correo, chat y teléfono. Premium members tienen acceso a asesoría personalizada.',
-    },
-    {
-      question: '¿Los recursos incluyen certificados?',
-      answer: 'Sí, al completar cualquier curso recibirás un certificado verificable que puedes compartir en tu CV.',
-    },
-  ];
-
   return (
-    <div className="min-h-screen bg-white">
-      {/* Hero Section */}
-      <div className="bg-gradient-to-br from-blue-50 to-indigo-50 py-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h1 className="text-5xl font-bold text-blue-900 mb-4">Contacta con Nosotros</h1>
-          <p className="text-xl text-gray-600">
-            ¿Preguntas sobre ApruébaLo YA!? Nuestro equipo está aquí para ayudarte
-          </p>
-        </div>
-      </div>
-
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        {/* Contact Methods */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
-          {contactMethods.map((method, idx) => {
-            const Icon = method.icon;
-            return (
-              <div key={idx} className="bg-white rounded-2xl shadow-lg p-6 hover:shadow-xl transition-shadow">
-                <Icon className="w-12 h-12 text-blue-600 mb-4" />
-                <h3 className="font-bold text-gray-900 mb-2">{method.title}</h3>
-                <p className="text-blue-600 font-semibold mb-2">{method.value}</p>
-                <p className="text-gray-600 text-sm">{method.description}</p>
-              </div>
-            );
-          })}
-        </div>
-
-        {/* Contact Form and Google Form Section */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 mb-16">
-          {/* Direct Contact Form */}
-          <div className="bg-gray-50 rounded-2xl p-8">
-            <h2 className="text-2xl font-bold text-gray-900 mb-6">Envíanos un Mensaje</h2>
-            <form className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Nombre Completo *</label>
-                <Input
-                  type="text"
-                  placeholder="Tu nombre"
-                  required
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Correo Electrónico *</label>
-                <Input
-                  type="email"
-                  placeholder="tu@email.com"
-                  required
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Teléfono</label>
-                <Input
-                  type="tel"
-                  placeholder="+34 123 456 789"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Asunto *</label>
-                <Input
-                  type="text"
-                  placeholder="¿Cuál es tu consulta?"
-                  required
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Mensaje *</label>
-                <textarea
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
-                  rows={5}
-                  placeholder="Cuéntanos tu pregunta o consulta..."
-                  required
-                />
-              </div>
-              <Button className="w-full bg-blue-600 hover:bg-blue-700 py-3 text-base">
-                <Send className="w-5 h-5 mr-2" />
-                Enviar Mensaje
-              </Button>
-            </form>
-          </div>
-
-          {/* Info Section */}
-          <div className="space-y-8">
-            {/* Google Form Embed Info */}
-            <div className="bg-white rounded-2xl shadow-lg p-8 border-2 border-blue-100">
-              <h2 className="text-2xl font-bold text-gray-900 mb-4">Formulario de Contacto</h2>
-              <p className="text-gray-600 mb-6">
-                También puedes llenar nuestro formulario de Google Forms para consultas generales. La información se procesará en menos de 24 horas.
-              </p>
-              <div className="bg-blue-50 rounded-lg p-4 mb-6 border-l-4 border-blue-600">
-                <p className="text-sm text-gray-700">
-                  <strong>Nota:</strong> Reemplaza la URL del formulario con tu formulario de Google Forms actual para que los usuarios puedan responder directamente.
-                </p>
-              </div>
-              <Button className="w-full bg-indigo-600 hover:bg-indigo-700 py-3">
-                Abrir Formulario de Google
-              </Button>
-            </div>
-
-            {/* Service Info */}
-            <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl p-8 border border-blue-200">
-              <h3 className="text-xl font-bold text-blue-900 mb-4">Nuestros Servicios</h3>
-              <ul className="space-y-3 text-gray-700">
-                <li>✓ Consultas generales y soporte</li>
-                <li>✓ Información sobre suscripciones</li>
-                <li>✓ Asesoría académica personalizada</li>
-                <li>✓ Solicitudes de recursos especiales</li>
-                <li>✓ Reportes de problemas técnicos</li>
-                <li>✓ Colaboraciones y asociaciones</li>
-              </ul>
+    <div className="min-h-screen bg-background">
+      {/* Banner + Información general */}
+      <section className="relative h-64 sm:h-72 lg:h-96 overflow-hidden">
+        <Image
+          src="/img/banner.jpg"
+          alt="Información general"
+          fill
+          className="object-cover"
+          priority
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/40 to-transparent flex items-end">
+          <div className="w-full pb-8 sm:pb-10 pt-20 sm:pt-24 px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto">
+            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-white drop-shadow-lg">
+              Información general
+            </h1>
+            <p className="mt-3 text-white/95 text-lg max-w-2xl">
+              Aprende a reforzar tus ideas de investigación con nosotros
+            </p>
+            {/* Datos de contacto */}
+            <div className="mt-6 sm:mt-10 flex flex-wrap gap-4 sm:gap-8 text-white text-sm sm:text-base">
+              <a href="tel:932757400" className="flex items-center gap-2 font-semibold hover:underline">
+                <Phone className="w-5 h-5" />
+                932 757 400
+              </a>
+              <a href="mailto:informes@apruebaloya.com" className="flex items-center gap-2 font-semibold hover:underline">
+                <Mail className="w-5 h-5" />
+                informes@apruebaloya.com
+              </a>
+              <span className="flex items-center gap-2 font-semibold">
+                <MapPin className="w-5 h-5" />
+                Av. Del Ejército 930
+              </span>
             </div>
           </div>
         </div>
+      </section>
 
-        {/* FAQs Section */}
-        <div className="mb-16">
-          <h2 className="text-3xl font-bold text-blue-900 mb-8 text-center">Preguntas Frecuentes</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {faqs.map((faq, idx) => (
-              <div key={idx} className="bg-white rounded-2xl shadow-lg p-6 border-l-4 border-blue-600">
-                <h3 className="font-bold text-gray-900 mb-3">{faq.question}</h3>
-                <p className="text-gray-600">{faq.answer}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* CTA Section */}
-        <div className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-2xl p-12 text-center">
-          <h2 className="text-3xl font-bold mb-4">Comienza Hoy</h2>
-          <p className="text-xl mb-8 text-blue-100">
-            ¿Listo para transformar tu vida académica? Únete a ApruébaLo YA!
+      {/* Mensaje de bienvenida */}
+      <section className="py-10 sm:py-16 bg-white border-y border-border">
+        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+          <p className="text-xl sm:text-2xl font-black text-foreground mb-6 sm:mb-8">
+            ¡Bienvenidos, exploradores del conocimiento! 👋
           </p>
-          <div className="flex gap-4 justify-center flex-wrap">
-            <Button className="bg-white text-blue-600 hover:bg-gray-100 px-8 py-3 text-lg font-bold">
-              Registrarse Ahora
-            </Button>
-            <Button variant="outline" className="px-8 py-3 text-lg font-bold border-white text-white hover:bg-white/10 bg-transparent">
-              Más Información
-            </Button>
+          <div className="space-y-6 text-muted-foreground leading-relaxed">
+            <p>
+              Somos doctores apasionados por la <span className="font-bold text-foreground">CIENCIA</span>. A lo largo de nuestra trayectoria como docentes universitarios, hemos descubierto que el motor más poderoso del ser humano es la curiosidad.
+            </p>
+            <p>
+              Hoy, queremos compartir con ustedes el fruto de años de dedicación y recopilación. Detrás de cada archivo que encontrarán aquí, incontables horas invertidas. Pregúntense: ¿Cuánto tiempo lleva realmente construir una biblioteca de información valiosa?
+            </p>
+            <h3 className="font-black text-foreground text-lg pt-2">
+              El Valor del Tiempo y el Conocimiento Genuino
+            </h3>
+            <p>
+              En nuestra experiencia, siempre deseamos tener a nuestro alcance tantos libros y recursos como los que hoy pongo a su disposición. Es un tesoro que forjé con disciplina.
+            </p>
+            <p>
+              Mi intención es simple, pero profunda: compartir esta información con aquellos que verdaderamente valoren el tiempo, el esfuerzo y la dedicación que implica compilar un recurso de esta magnitud.
+            </p>
+            <p>
+              Es cierto que la Inteligencia Artificial (IA) ha llegado para revolucionar el acceso a la información. Es una herramienta poderosa, ¡pero recordemos que eso es: una herramienta! El análisis crítico, la experiencia humana y la bibliografía original siguen siendo irremplazables.
+            </p>
+            <p>
+              Si compartes mi entusiasmo por el aprendizaje genuino, el análisis profundo y la emoción pura que genera la Ciencia, estás en el lugar correcto.
+            </p>
+            <p className="text-foreground font-bold text-lg">
+              ¡Empecemos a explorar este universo de conocimiento juntos! 💡
+            </p>
           </div>
         </div>
-      </div>
+      </section>
+
+      {/* Formulario de contacto + descripción + Google Chat */}
+      <section className="py-10 sm:py-16">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-4 mb-6 sm:mb-8">
+            <div className="w-14 h-14 relative">
+              <Image src="/img/logo.png" alt="Apruebaloya" width={56} height={56} className="object-contain" />
+            </div>
+            <h2 className="text-xl sm:text-2xl font-black text-foreground">Formulario de contacto</h2>
+          </div>
+          <div className="space-y-6 text-muted-foreground leading-relaxed mb-10">
+            <p>
+              Te ofrecemos asesoría personalizada para tu investigación. Nuestro equipo te acompaña con apoyo en metodología, redacción y revisión de tesis, además de recursos y materiales de estudio.
+            </p>
+            <p className="font-semibold text-foreground">
+              Comunícate con nosotros de forma rápida y efectiva
+            </p>
+            <p>
+              Obtén respuestas ágiles y un trato personalizado. Ya sea por formulario, correo o Google Chat, estamos para ayudarte.
+            </p>
+          </div>
+          <div className="bg-white rounded-2xl shadow-md border border-border p-5 sm:p-8 mb-8 sm:mb-10">
+            <h3 className="font-black text-foreground mb-6">Cómo iniciar un chat en Google Chat</h3>
+            <ol className="space-y-4 list-decimal list-inside text-muted-foreground">
+              <li>Abre Google Chat e inicia sesión con tu cuenta Gmail.</li>
+              <li>En el menú lateral elige &quot;Nuevo chat&quot; o &quot;Nuevo tema&quot;.</li>
+              <li>Escribe tu mensaje, por ejemplo: &quot;Hola, necesito información sobre...&quot; y envíalo.</li>
+            </ol>
+          </div>
+        </div>
+      </section>
     </div>
   );
 }

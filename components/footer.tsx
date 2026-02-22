@@ -1,16 +1,23 @@
 import Link from 'next/link';
+import Image from 'next/image';
 import { Mail, Phone, MapPin, Facebook, Instagram, Twitter } from 'lucide-react';
 
 export function Footer() {
   return (
     <footer className="bg-gradient-to-b from-background to-muted border-t border-border">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-16">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 sm:gap-12 mb-8 sm:mb-12">
           {/* Company Info */}
           <div>
             <div className="flex items-center gap-2 mb-4">
-              <div className="w-8 h-8 bg-gradient-to-br from-primary to-secondary rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-sm">A</span>
+              <div className="w-8 h-8 relative">
+                <Image
+                  src="/img/logo.png"
+                  alt="ApruébaLo YA!"
+                  width={32}
+                  height={32}
+                  className="w-full h-full object-contain"
+                />
               </div>
               <h3 className="font-bold text-foreground text-lg">ApruébaLo YA!</h3>
             </div>
@@ -25,7 +32,7 @@ export function Footer() {
             <ul className="space-y-3">
               <li><Link href="/cursos" className="text-muted-foreground hover:text-foreground text-sm transition-colors">Cursos</Link></li>
               <li><Link href="/asesoria-tesis" className="text-muted-foreground hover:text-foreground text-sm transition-colors">Asesoría de Tesis</Link></li>
-              <li><Link href="/asignaturas" className="text-muted-foreground hover:text-foreground text-sm transition-colors">Asignaturas</Link></li>
+              <li><Link href="/asignaturas-preuniversitarias" className="text-muted-foreground hover:text-foreground text-sm transition-colors">Asignaturas Preuniversitarias</Link></li>
               <li><Link href="/contacto" className="text-muted-foreground hover:text-foreground text-sm transition-colors">Contacto</Link></li>
             </ul>
           </div>
